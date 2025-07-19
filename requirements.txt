@@ -1,0 +1,14 @@
+build==1.2.2.post1
+clip
+gdown
+imageio-ffmpeg
+insightface
+lpips
+mediapipe
+noise
+onnxruntime
+PySocks
+realesrgan
+stylegan2-torch
+tensorflow
+wandb
