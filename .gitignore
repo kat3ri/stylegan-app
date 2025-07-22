@@ -3,3 +3,4 @@ stylegan-app/workspace/
 stylegan-app/src/workspace/
 stylegan-app/src/pretrained_models/
 *.pt
+*.pkl
