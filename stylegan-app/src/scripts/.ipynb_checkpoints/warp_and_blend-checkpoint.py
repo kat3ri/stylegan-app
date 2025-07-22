@@ -46,18 +46,17 @@ def patch_and_blend_with_homography_skin_graft(original_path, enhanced_path, hom
                 cv2.fillConvexPoly(mask, hull, 1.0)
 
               # Exclude regions with optional padding (eyes, mouth, nose)
-                def erase_region(indices, padding=exclusion_padding):
+                def erase_region(indices, padding=exclusion_padding, opacity=0.0):
                     pts = np.array([(int(lm[i].x * w), int(lm[i].y * h)) for i in indices], np.int32)
                     if len(pts) == 0:
                         return
                     rect = cv2.boundingRect(pts)
-                    center = (rect[0] + rect[2]//2, rect[1] + rect[3]//2)
-                    pts = pts - center
+                    center = (rect[0] + rect[2] // 2, rect[1] + rect[3] // 2)
                     scale = 1 + padding / 100.0
-                    pts = pts * scale
-                    pts = pts + center
-                    pts = pts.astype(np.int32)
-                    cv2.fillConvexPoly(mask, pts, 0.0)
+                    pts = ((pts - center) * scale + center).astype(np.int32)
+                    overlay = np.zeros_like(mask)
+                    cv2.fillConvexPoly(overlay, pts, 1.0)
+                    mask[overlay == 1] = mask[overlay == 1] * opacity
     
                 left_eye = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]
                 right_eye = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398]
@@ -69,8 +68,8 @@ def patch_and_blend_with_homography_skin_graft(original_path, enhanced_path, hom
     
                 erase_region(left_eye)
                 erase_region(right_eye)
-                erase_region(mouth, padding=10)
-                erase_region(nose, padding=5)
+                erase_region(mouth, padding=5)
+                erase_region(nose, padding=5, opacity=0.25)
                 erase_region(upper_lip, padding=5)  # smaller padding to preserve lower lip but protect upper
 
                 # === NEW: Forehead center guided soft blend ===
